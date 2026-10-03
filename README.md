@@ -13,7 +13,7 @@ identical, with two long-standing bugs fixed (see [Changes from upstream](#chang
 
 - 125 hash/signature recognitions (CRC, MD5 family, SHA family, NTLM, DES
   crypt, Joomla, Django, SAM, `$6$`, …)
-- Interactive prompt, positional arguments, or piped standard input
+- Interactive prompt, positional arguments, `-f/--file`, or piped standard input
 - Machine-readable JSON output
 - Zero runtime dependencies — standard library only
 - Usable as a library: `from hashid import identify_hash`
@@ -51,7 +51,14 @@ hash-id
 hash-id 5f4dcc3b5aa765d61d8327deb882cf99
 hash-id --json 5f4dcc3b5aa765d61d8327deb882cf99
 
-# pipe a list of hashes
+# read hashes from a file (one hash per line, blank lines ignored); repeat -f
+hash-id -f hashes.txt
+hash-id -f wordlists/a.txt -f wordlists/b.txt --json
+
+# positional hashes and files combine
+hash-id -f hashes.txt 4607
+
+# or pipe a list of hashes on standard input
 cat hashes.txt | hash-id
 ```
 

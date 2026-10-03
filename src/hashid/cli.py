@@ -34,6 +34,16 @@ def build_parser() -> argparse.ArgumentParser:
         "session (or reads hashes from standard input when piped)",
     )
     parser.add_argument(
+        "-f",
+        "--file",
+        action="append",
+        metavar="FILE",
+        default=[],
+        help="read hashes from FILE, one hash per line (blank lines are "
+        "ignored); repeat to read multiple files, and combine with "
+        "positional hashes",
+    )
+    parser.add_argument(
         "-j",
         "--json",
         action="store_true",
@@ -126,10 +136,25 @@ def _interactive(*, show_banner: bool) -> int:
             print(format_result(identify_hash(value)))
 
 
+def _read_hash_files(
+    paths: Sequence[str], parser: argparse.ArgumentParser
+) -> list[str]:
+    values: list[str] = []
+    for path in paths:
+        try:
+            with open(path, encoding="utf-8") as handle:
+                values.extend(line.strip() for line in handle if line.strip())
+        except OSError as exc:
+            parser.error(f"cannot read {path!r}: {exc.strerror or exc}")
+    return values
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
 
     hashes = [value.strip() for value in args.hashes if value.strip()]
+    hashes.extend(_read_hash_files(args.file, parser))
 
     if hashes:
         _run_batch(hashes, as_json=args.json, show_banner=args.banner)

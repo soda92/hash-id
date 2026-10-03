@@ -279,6 +279,44 @@ def test_cli_reads_piped_stdin(capsys, monkeypatch):
     assert "[+] MD5" in capsys.readouterr().out
 
 
+def test_cli_reads_hashes_from_file(tmp_path, capsys):
+    hash_file = tmp_path / "hashes.txt"
+    hash_file.write_text(
+        "5f4dcc3b5aa765d61d8327deb882cf99\n\n  d41d8cd98f00b204e9800998ecf8427e  \n",
+        encoding="utf-8",
+    )
+    assert main(["--file", str(hash_file)]) == 0
+    output = capsys.readouterr().out
+    assert (
+        output.count("HASH:") == 2
+    )  # blank line ignored, surrounding whitespace stripped
+    assert output.count("[+] MD5\n") == 2  # exact name, not MD5(HMAC) and friends
+
+    # Several files can be passed, mixed with positional hashes.
+    other = tmp_path / "more.txt"
+    other.write_text("3d08\n", encoding="utf-8")
+    assert main(["-f", str(hash_file), "-f", str(other), "4607"]) == 0
+    output = capsys.readouterr().out
+    assert "CRC-16-CCITT" in output  # 3d08
+    assert output.count("HASH:") == 4
+
+
+def test_cli_missing_file_errors(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--file", "/no/such/hash/file.txt"])
+    assert exc_info.value.code == 2
+    assert "file.txt" in capsys.readouterr().err
+
+
+def test_cli_file_json(tmp_path, capsys):
+    hash_file = tmp_path / "hashes.txt"
+    hash_file.write_text("5f4dcc3b5aa765d61d8327deb882cf99\n", encoding="utf-8")
+    assert main(["--json", "-f", str(hash_file)]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert len(payload) == 1
+    assert payload[0]["possible"][0] == "MD5"
+
+
 def test_cli_version(capsys):
     with pytest.raises(SystemExit) as exc_info:
         main(["--version"])
