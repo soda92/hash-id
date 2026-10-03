@@ -1,0 +1,79 @@
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
+
+[project]
+name = "hash-id"
+version = "2.0.0"
+description = "Identify the different types of hashes used to hash data and especially passwords"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Zion3R" },
+]
+keywords = [
+    "hash",
+    "hash-identifier",
+    "security",
+    "passwords",
+    "cryptography",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Topic :: Security",
+    "Topic :: Utilities",
+]
+
+[project.scripts]
+hash-id = "hashid.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/soda92/hash-id"
+Repository = "https://github.com/soda92/hash-id"
+Issues = "https://github.com/soda92/hash-id/issues"
+
+# Distribution name is hash-id while the import package is hashid.
+[tool.uv.build-backend]
+module-name = "hashid"
+module-root = "src"
+
+[tool.ruff]
+target-version = "py38"
+extend-exclude = ["tests/fixtures"]
+
+[tool.ruff.lint]
+select = [
+    "E4", "E7", "E9", "F",
+    "C4",   # flake8-comprehensions：更清晰高效的列表/字典推导式
+    "UP",   # pyupgrade：在 Python 3.8 兼容范围内升级标准语法
+    "YTT",  # flake8-2020：防范 sys.version 比较漏洞
+    "PIE",  # flake8-pie：精简冗余结构
+]
+ignore = [
+    "B008",   # 允许在函数默认参数中使用 Field(...)
+    "RUF001", # 允许字符串中出现中文标点
+    "RUF002", # 允许 docstring 中出现中文标点
+    "RUF003", # 允许注释中出现中文标点
+    "A001",   # 允许字段名遮蔽内置名 (id, type 等)
+    "A002",   # 允许参数名遮蔽内置名
+    "LOG",    # 屏蔽 LOG 类检查噪音
+    "I",      # 不强制 import 排序，避免大量 diff
+    "FA",     # 保留 from __future__ import annotations，兼容原生 Python 3.8
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "ruff>=0.16",
+]
