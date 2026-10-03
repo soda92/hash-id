@@ -1,0 +1,18 @@
+pkgbase = hash-id-git
+	pkgdesc = Identify hashes used to hash data and especially passwords (modernized Python 3 fork)
+	pkgver = 2.0.0
+	pkgrel = 1
+	url = https://github.com/soda92/hash-id
+	arch = any
+	license = AGPL-3.0-or-later
+	checkdepends = python-pytest
+	makedepends = git
+	makedepends = uv
+	makedepends = python-installer
+	depends = python
+	provides = hash-id
+	conflicts = hash-id
+	source = git+https://github.com/soda92/hash-id.git
+	sha256sums = SKIP
+
+pkgname = hash-id-git
